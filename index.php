@@ -17,6 +17,9 @@ $msg ='';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	
 	$action = $_POST['action'];
+	if (empty($action)) {
+		$action =$_GET['action'];
+	}
 
 	switch ($action) {
 		case 'register':
@@ -62,6 +65,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 				}
 			
 			}
+			break;
+		case 'logout':
+			
+			     echo "Here";exit;
+				 $_SESSION['user'] = '';
+				 $_SESSION['loggedIn'] = false;			
+			
 			break;
 		default;
 	}
