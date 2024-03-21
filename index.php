@@ -41,7 +41,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			}	else {
 				$userRecord = $user->login($email, $password );
 				if (!empty($userRecord)) {
-						$successMsg = 'User logged in Successfully';
+					$successMsg = 'User logged in Successfully';
+					$template_content = get_template_content("welcome.html");
+					if (isset($userRecord)) {
+						foreach ($userRecord as $key=>$value) {
+							$template_content = str_ireplace('%'.$key.'%', $value , $template_content ); 
+						}	
+						
+					}
+
 				} else {
 					$errorMsg = 'Login failed , try again';
 				}

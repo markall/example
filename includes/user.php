@@ -57,7 +57,7 @@ class User {
 
 		// Check if $uploadOk is set to 0 by an error
 		if ($uploadOk == 0) {
-			$msg = "Sorry, your file was not uploaded.";exit;
+			$msg = "Sorry, your file was not uploaded.";
 		// If everything is ok, try to upload file
 		} else {
 			if (move_uploaded_file($files["file"]["tmp_name"], $target_file)) {
@@ -77,72 +77,29 @@ class User {
 		
 		return $msg;
 	}
+	
 
 	/**
-	*	function login 
-	*	@param string email, string password
-	*	@return user
-	*/
-    public function login($email, $password ) {
-		
-		$hashed_password = password_hash($password, PASSWORD_DEFAULT);
-		
+		*	function login 
+		*	@param string email, string password
+		*	@return user
+		*
+	**/
+       public function login($email, $password) {
         // Check if user exists
-        $stmt = $this->db->prepare("SELECT id, name, password FROM users WHERE email = ? AND ( verification_code = ? OR password = ? ) ");
+        $stmt = $this->db->prepare("SELECT id, name, password FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
 
-		// SQL statement template with placeholders
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        $stmt->close();
 
-		// Parameters (placeholders)
-		$params = array($email, $verification_code, $password);
-        $stmt->bind_param("ss", $email, $password, $hashed_password );
-    // Execute query
-		$stmt->execute();
+        if ($user && ( (password_verify($password, $user['password']))  || ($user['verification_code']==$password) ) ) {
+            return $user;
+        }
 
-		$result = $stmt->get_result();
-		
-		
-		
-		/*
-		// Ths method is unsafe and would not normally be used but server issues 
-		$sql = "SELECT id, name, password FROM users WHERE email = '$email' AND ( verification_code = '$password' OR password = '$hashed_password' ) ";
-
-
-			// Output the SQL statement
-			echo "SQL Statement: $sql";
-
-
-				// Execute the SQL query using the existing database connection object
-				$result = $db->query($sql);
-
-		
-					// Check if the query was successful
-					if ($result) {
-						echo "Rows: ". $result->num_rows;
-						// Check the number of rows returned
-						if ($result->num_rows == 1) {
-							// Fetch the user data
-							$user = $result->fetch_assoc();
-							return $user;
-						} else {
-							// No user found or multiple users found
-							echo "No user found or multiple users found.";
-						}
-					} else {
-						// Error executing the query
-						echo "Error executing query: " . mysqli_error($db);
-					}
-		
-		//. end unsafe code 
-		*/
-		
-
-		if ($result->num_rows == 1) {
-			$user = $result->fetch_assoc();
-			return $user;
-		}
-
-		return false;
-		
+        return false;
     }
 
 	/**
