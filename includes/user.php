@@ -87,7 +87,7 @@ class User {
 	**/
        public function login($email, $password) {
         // Check if user exists
-        $stmt = $this->db->prepare("SELECT id, name, password FROM users WHERE email = ?");
+        $stmt = $this->db->prepare("SELECT id, name, password,file,verification_code FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
 

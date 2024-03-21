@@ -6,7 +6,7 @@ include_once 'includes/template.php';
 
 
 $template_content = get_template_content("index.html");
-
+$_SESSION['loggedIn'] = false;
 
 $user = new User($db);
 $errorMsg = '';
@@ -43,11 +43,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 				if (!empty($userRecord)) {
 					$successMsg = 'User logged in Successfully';
 					$template_content = get_template_content("welcome.html");
+					
+					
 					if (isset($userRecord)) {
+
 						foreach ($userRecord as $key=>$value) {
+							if ($key=='file' && !empty($value) ) {
+								$value = "<img width=200 src='$value' />";
+							}
 							$template_content = str_ireplace('%'.$key.'%', $value , $template_content ); 
-						}	
-						
+						}		
+						 $_SESSION['user'] = $userRecord;
+        				 $_SESSION['loggedIn'] = true;
 					}
 
 				} else {
