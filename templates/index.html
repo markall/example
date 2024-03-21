@@ -1,0 +1,72 @@
+<!-- login_registration_template.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Registration</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Login</h1>
+        <form id="loginForm" action= 'index.php' enctype="multipart/form-data" method='post' >
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" class="form-control" id="loginEmail" name="loginEmail" required >
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" class="form-control" id="loginPassword" name="loginPassword" required >
+            </div>
+			<input type='hidden' name='action' value='login' />
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <hr>
+        <h1>Register</h1>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#registrationModal">Register</button>
+    </div>
+
+    <!-- Registration Modal -->
+    <div class="modal fade" id="registrationModal" tabindex="-1" role="dialog" aria-labelledby="registrationModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registrationModalLabel">Register</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm" action= 'index.php' enctype="multipart/form-data" method='post' >
+                        <div class="form-group">
+                            <label for="registerName">Name</label>
+                            <input type="text" class="form-control" id="registerName" name="registerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerEmail">Email</label>
+                            <input type="email" class="form-control" id="registerEmail" name="registerEmail" required>
+                        </div>
+						<input type='hidden' name='action' value='register' />
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	<div class='container' >
+	 <h2> %errorMsg% </h2>
+	 
+	</div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // You can add JavaScript code here for form validation, AJAX requests, etc.
+        // Remember to prevent the default form submission behavior and handle it using AJAX.
+    </script>
+</body>
+</html>
