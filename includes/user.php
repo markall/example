@@ -7,6 +7,12 @@ class User {
         $this->db = $db;
     }
 
+	/**
+	*	function register
+	*	@param string name, string email, files
+	*	@return msg
+	*/
+	
 	public function register($name, $email, $files) {
 		$verification_code = $this->generateVerificationCode();
 		$hashed_password = password_hash($verification_code, PASSWORD_DEFAULT);
@@ -14,7 +20,7 @@ class User {
 		
 		// File upload handling
 		$target_dir = "uploads/";
-		$target_file = $target_dir . basename($files["file"]["name"]);
+		$target_file = $target_dir . date("Y-m-d H:i:s").'_' . basename($files["file"]["name"]);
 		$uploadOk = 1;
 		$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 
@@ -72,35 +78,89 @@ class User {
 		return $msg;
 	}
 
-    public function login($email, $verification_code, $password, $confirm_password) {
+	/**
+	*	function login 
+	*	@param string email, string password
+	*	@return user
+	*/
+    public function login($email, $password ) {
+		
+		$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+		
         // Check if user exists
-        $stmt = $this->db->prepare("SELECT id, name, password FROM users WHERE email = ? AND verification_code = ?");
-        $stmt->bind_param("ss", $email, $verification_code);
-        $stmt->execute();
-        $stmt->store_result();
+        $stmt = $this->db->prepare("SELECT id, name, password FROM users WHERE email = ? AND ( verification_code = ? OR password = ? ) ");
 
-        if ($stmt->num_rows == 1) {
-            $stmt->bind_result($id, $name, $hashed_password);
-            $stmt->fetch();
-            
-            // Verify password and confirm password match
-            if (password_verify($password, $hashed_password) && $password === $confirm_password) {
-                // Update user password
-                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
-                $stmt->bind_param("si", $hashed_password, $id);
-                $stmt->execute();
-                $stmt->close();
-                return true;
-            }
-        }
-        return false;
+		// SQL statement template with placeholders
+
+		// Parameters (placeholders)
+		$params = array($email, $verification_code, $password);
+        $stmt->bind_param("ss", $email, $password, $hashed_password );
+    // Execute query
+		$stmt->execute();
+
+		$result = $stmt->get_result();
+		
+		
+		
+		/*
+		// Ths method is unsafe and would not normally be used but server issues 
+		$sql = "SELECT id, name, password FROM users WHERE email = '$email' AND ( verification_code = '$password' OR password = '$hashed_password' ) ";
+
+
+			// Output the SQL statement
+			echo "SQL Statement: $sql";
+
+
+				// Execute the SQL query using the existing database connection object
+				$result = $db->query($sql);
+
+		
+					// Check if the query was successful
+					if ($result) {
+						echo "Rows: ". $result->num_rows;
+						// Check the number of rows returned
+						if ($result->num_rows == 1) {
+							// Fetch the user data
+							$user = $result->fetch_assoc();
+							return $user;
+						} else {
+							// No user found or multiple users found
+							echo "No user found or multiple users found.";
+						}
+					} else {
+						// Error executing the query
+						echo "Error executing query: " . mysqli_error($db);
+					}
+		
+		//. end unsafe code 
+		*/
+		
+
+		if ($result->num_rows == 1) {
+			$user = $result->fetch_assoc();
+			return $user;
+		}
+
+		return false;
+		
     }
 
+	/**
+	*	function generateVerificationCode
+	*	
+	*	@return code
+	*/
     private function generateVerificationCode() {
-        return bin2hex(random_bytes(16));
+        return bin2hex(random_bytes(8));
     }
-
+	
+	
+	/**
+	*	function sendVerificationEmail
+	*.  @params string email, string verification_code
+	*	
+	*	@return code
+	*/
     private function sendVerificationEmail($email, $verification_code) {
         // You can implement email sending functionality here
         // Example:

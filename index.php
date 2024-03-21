@@ -35,11 +35,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		case 'login':
 			$email = $_POST['loginEmail'];
 			$password =  $_POST['loginPassword'];
+			
 			if ( empty($email) || empty ($password) )  {
 				$errorMsg ='Login: Email or Password missing ';
 			}	else {
-				$user->login($name, $email);
-				$successMsg = 'User logged in Successfully';
+				$userRecord = $user->login($email, $password );
+				if (!empty($userRecord)) {
+						$successMsg = 'User logged in Successfully';
+				} else {
+					$errorMsg = 'Login failed , try again';
+				}
+			
 			}
 			break;
 		default;
