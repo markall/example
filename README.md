@@ -1,10 +1,5 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Untitled Document</title>
-</head>
+# Example registration and login
+# 21 March 2024
+# uses Mysql users table with fields id (int) , name (string) , email (string) , password (string), verification_code (string)
 
-<body>
-</body>
-</html>
+ 
