@@ -67,8 +67,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			}
 			break;
 		case 'logout':
-			
-			     echo "Here";exit;
 				 $_SESSION['user'] = '';
 				 $_SESSION['loggedIn'] = false;			
 			
