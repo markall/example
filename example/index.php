@@ -6,7 +6,7 @@ include_once 'includes/template.php';
 
 
 $template_content = get_template_content("index.html");
-$_SESSION['loggedIn'] = false;
+
 
 $user = new User($db);
 $errorMsg = '';
@@ -17,9 +17,6 @@ $msg ='';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	
 	$action = $_POST['action'];
-	if (empty($action)) {
-		$action =$_GET['action'];
-	}
 
 	switch ($action) {
 		case 'register':
@@ -31,45 +28,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 				$errorMsg ='Register: Name or Email missing ';
 			} else {
 				$msg = $user->register($name, $email, $file);
-				$successMsg = 'User registered Successfully - Please check your email for the initial password. ';
+				$successMsg = 'User registered Successfully';
 			
 			}
 			break;
 		case 'login':
 			$email = $_POST['loginEmail'];
 			$password =  $_POST['loginPassword'];
-			
 			if ( empty($email) || empty ($password) )  {
 				$errorMsg ='Login: Email or Password missing ';
 			}	else {
-				$userRecord = $user->login($email, $password );
-				if (!empty($userRecord)) {
-					$successMsg = 'User logged in Successfully';
-					$template_content = get_template_content("welcome.html");
-					
-					
-					if (isset($userRecord)) {
-
-						foreach ($userRecord as $key=>$value) {
-							if ($key=='file' && !empty($value) ) {
-								$value = "<img width=200 src='$value' />";
-							}
-							$template_content = str_ireplace('%'.$key.'%', $value , $template_content ); 
-						}		
-						 $_SESSION['user'] = $userRecord;
-        				 $_SESSION['loggedIn'] = true;
-					}
-
-				} else {
-					$errorMsg = 'Login failed , try again';
-				}
-			
+				$user->login($name, $email);
+				$successMsg = 'User logged in Successfully';
 			}
-			break;
-		case 'logout':
-				 $_SESSION['user'] = '';
-				 $_SESSION['loggedIn'] = false;			
-			
 			break;
 		default;
 	}

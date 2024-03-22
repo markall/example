@@ -7,12 +7,6 @@ class User {
         $this->db = $db;
     }
 
-	/**
-	*	function register
-	*	@param string name, string email, files
-	*	@return msg
-	*/
-	
 	public function register($name, $email, $files) {
 		$verification_code = $this->generateVerificationCode();
 		$hashed_password = password_hash($verification_code, PASSWORD_DEFAULT);
@@ -20,7 +14,7 @@ class User {
 		
 		// File upload handling
 		$target_dir = "uploads/";
-		$target_file = $target_dir . date("Y-m-d H:i:s").'_' . basename($files["file"]["name"]);
+		$target_file = $target_dir . basename($files["file"]["name"]);
 		$uploadOk = 1;
 		$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 
@@ -43,7 +37,7 @@ class User {
 		}
 
 		// Check file size
-		if ($_FILES["file"]["size"] > 5000000) {
+		if ($_FILES["file"]["size"] > 500000) {
 			$msg = "Sorry, your file is too large.";
 			$uploadOk = 0;
 		}
@@ -57,7 +51,7 @@ class User {
 
 		// Check if $uploadOk is set to 0 by an error
 		if ($uploadOk == 0) {
-			$msg = "Sorry, your file was not uploaded.";
+			$msg = "Sorry, your file was not uploaded.";exit;
 		// If everything is ok, try to upload file
 		} else {
 			if (move_uploaded_file($files["file"]["tmp_name"], $target_file)) {
@@ -77,47 +71,36 @@ class User {
 		
 		return $msg;
 	}
-	
 
-	/**
-		*	function login 
-		*	@param string email, string password
-		*	@return user
-		*
-	**/
-       public function login($email, $password) {
+    public function login($email, $verification_code, $password, $confirm_password) {
         // Check if user exists
-        $stmt = $this->db->prepare("SELECT id, name, password,file,verification_code FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
+        $stmt = $this->db->prepare("SELECT id, name, password FROM users WHERE email = ? AND verification_code = ?");
+        $stmt->bind_param("ss", $email, $verification_code);
         $stmt->execute();
+        $stmt->store_result();
 
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
-        $stmt->close();
-
-        if ($user && ( (password_verify($password, $user['password']))  || ($user['verification_code']==$password) ) ) {
-            return $user;
+        if ($stmt->num_rows == 1) {
+            $stmt->bind_result($id, $name, $hashed_password);
+            $stmt->fetch();
+            
+            // Verify password and confirm password match
+            if (password_verify($password, $hashed_password) && $password === $confirm_password) {
+                // Update user password
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
+                $stmt->bind_param("si", $hashed_password, $id);
+                $stmt->execute();
+                $stmt->close();
+                return true;
+            }
         }
-
         return false;
     }
 
-	/**
-	*	function generateVerificationCode
-	*	
-	*	@return code
-	*/
     private function generateVerificationCode() {
-        return bin2hex(random_bytes(8));
+        return bin2hex(random_bytes(16));
     }
-	
-	
-	/**
-	*	function sendVerificationEmail
-	*.  @params string email, string verification_code
-	*	
-	*	@return code
-	*/
+
     private function sendVerificationEmail($email, $verification_code) {
         // You can implement email sending functionality here
         // Example:
